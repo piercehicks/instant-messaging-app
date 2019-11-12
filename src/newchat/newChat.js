@@ -38,14 +38,21 @@ class NewChatComponent extends React.Component {
                 <InputLabel htmlFor="new-chat-message">
                   Enter Your Message
                 </InputLabel>
-                <InputLabel
+                <Input
                   required
                   className={classes.input}
                   onChange={(e)=> this.userTyping('message',e)}
                   id='new-chat-message'
                   >
-                </InputLabel>
+                </Input>
               </FormControl>
+              <Button
+                fullWidth className={classes.submit}
+                variant="contained" color="primary"
+                type="submit"
+                >
+                Send
+              </Button>
               </form>
         </Paper>
       </main>
@@ -84,15 +91,16 @@ class NewChatComponent extends React.Component {
     });
   }
 
-  goToChat = () => this.props.goToChatFn(this.buildDocKey(), this.state.message)
+  goToChat = () => this.props.goToChatFn(this.buildDocKey(), this.state.message);
 
   buildDocKey = () => {
     return [firebase.auth().currentUser.email, this.state.username].sort().join(':');
   }
 
   chatExists = async () => {
-    const docKey = this.buildDockey();
-    const chat = await firebase
+    const docKey = this.buildDocKey();
+    const chat = await
+    firebase
       .firestore()
       .collection('chats')
       .doc(docKey)
