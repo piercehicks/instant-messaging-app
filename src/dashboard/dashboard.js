@@ -4,6 +4,7 @@ import { Button, withStyles } from '@material-ui/core';
 import styles from './styles';
 import ChatViewComponent from '../chatview/chatView';
 import ChatTextBoxComponent from '../chattextbox/chatTextBox';
+import NewChatComponent from '../newchat/newChat';
 const firebase = require('firebase');
 
 class DashboardComponent extends React.Component {
@@ -26,7 +27,7 @@ class DashboardComponent extends React.Component {
       <div>
       <ChatListComponent
         history={this.props.history}
-        newChatBtn={this.newChatBtnClicked}
+        newChatBtnFn={this.newChatBtnClicked}
         selectChatFn={this.selectChat}
         chats={this.state.chats}
         userEmail={this.state.email}
@@ -49,6 +50,10 @@ class DashboardComponent extends React.Component {
               >
               </ChatTextBoxComponent> :
           null
+        }
+        {
+          this.state.newChatFormVisible ? <NewChatComponent goToChatFn={this.goToChat} newChatSubmitFn={this.newChatSubmit}>
+          </NewChatComponent> : null
         }
 
         <Button className={classes.signOutBtn} onClick={this.signOut}>Sign Out</Button>
@@ -94,6 +99,32 @@ class DashboardComponent extends React.Component {
     } else {
       console.log("testy");
     }
+  }
+
+  goToChat = async (docKey, msg) => {
+    const usersInChat = docKey.split(':');
+    const chat = this.state.chats.find(_chat => usersInChat.every(_user => _chat.users.includes(_user)));
+    this.setState({ newChatFormVisible: false });
+    await this.selectChat(this.state.chats.indexOf(chat));
+    this.submitMessage(msg);
+  }
+
+  newChatSubmit = async (chatObj) => {
+    const docKey = this.buildDocKey(chatObj.sendTo);
+    await firebase
+      .firestore()
+      .collection('chats')
+      .doc(docKey)
+      .set({
+        receiverHasRead: false,
+        users: [this.state.email, chatObj.sendTo],
+        messages: [{
+          message: chatObj.message,
+          sender: this.state.email
+        }]
+      })
+      this.setState({ newChatFormVisible: false });
+      this.selectChat(this.state.chats.length - 1);
   }
 
   clickedChatWhereNotSender = (chatIndex) => this.state.chats[chatIndex].messages[this.state.chats[chatIndex].messages.length - 1].sender !== this.state.email;
