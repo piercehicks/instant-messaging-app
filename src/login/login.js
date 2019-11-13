@@ -31,7 +31,7 @@ class LoginComponent extends React.Component {
         <CssBaseline/>
         <Paper className={classes.paper}>
           <Typography component="h1" variant="h5">
-            Log In!
+            Welcome to Pierce Chat!
           </Typography>
           <form onSubmit={(e) => this.submitLogin(e)} className={classes.form}>
             <FormControl required fullWidth margin='normal'>
